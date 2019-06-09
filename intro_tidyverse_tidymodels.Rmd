@@ -1,0 +1,973 @@
+---
+title: "Einführung in das *tidyverse*: "
+subtitle: "... <html><div style='float:left'></div><hr color='#EB811B' size=1px width=1096px></html>"
+author: "Marco Sciaini <br>https://marcosci.github.io"
+date: "Computergestützte Datenanalyse, 11.06.2019"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts, "style.css"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(fig.align = "center", cache = TRUE)
+library(mbmisc)
+library(tidyverse)
+```
+
+class: clear, center
+
+background-image: url(tidyhex.png)
+---
+# Sneak Peak #1
+  
+```{r echo=TRUE, message=FALSE, warning=FALSE, out.height="375px", fig.align='center'}
+library(mapview)
+library(sf)
+franconia %>%
+  mutate(count = lengths(st_contains(., breweries)),
+         density = count / st_area(.)) %>%
+  mapview(zcol = "density", legend = FALSE)
+```
+
+---
+# Sneak peak #2
+
+.pull-left[
+
+### Base R:
+
+```{r eval=FALSE}
+iris <- iris[iris$Sepal.Width > 3.4 & 
+             iris$Sepal.Length > 2.8,]
+iris$Category <- "big plants"
+iris_sp1 <- iris[iris$Species == "setosa",]
+iris_sp2 <- iris[iris$Species == "versicolor",]
+iris_sp3 <- iris[iris$Species == "virginica",]
+fit_sp1 <- lm(Sepal.Width ~ Petal.Length, 
+              Daten = iris_sp1)
+fit_sp2 <- lm(Sepal.Width ~ Petal.Length, 
+              Daten = iris_sp2)
+fit_sp3 <- lm(Sepal.Width ~ Petal.Length, 
+              Daten = iris_sp3)
+par(mfrow = c(1,3))
+plot(Sepal.Length ~ Petal.Width, Daten = iris)
+abline(fit_sp1)
+plot(Sepal.Length ~ Petal.Width, Daten = iris)
+abline(fit_sp2)
+plot(Sepal.Length ~ Petal.Width, Daten = iris)
+abline(fit_sp3)
+```
+
+]
+
+.pull-right[
+
+### tidyverse:
+
+```{r eval=FALSE}
+iris %>%
+  filter(Sepal.Width < 3.4 & Sepal.Length > 2.8) %>% 
+  mutate(Category = "big plants") %>% 
+  ggplot(aes(x = Sepal.Width, Petal.Length)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  facet_grid(. ~ Species)
+```
+
+]
+
+<br>
+
+---
+# Warum tidyverse?
+<br>
+### Das `r font_col("tidyverse", "#E69F00")` ist eine Sammlung von `r font_col("benutzerfreundlichen und konsistenten", "#56B4E9")` Tools für Datennanlyse und Visualisierung. 
+
+<center><br><br><br> <img src="https://rviews.rstudio.com/post/2017-06-09-What-is-the-tidyverse_files/tidyverse2.png" style="width: 50%" /></center>
+
+---
+# Tidyverse
+
+### Metapaket, welches mit `library(tidyverse)`: 
+.pull-left[
+- [ggplot2](http://ggplot2.tidyverse.org), für Datenvisualisation.
+- [dplyr](http://dplyr.tidyverse.org), für Datenmanipulation.
+- [tidyr](http://tidyr.tidyverse.org), für Daten "säubern".
+- [readr](http://readr.tidyverse.org), für Datenimport.
+- [purrr](http://purrr.tidyverse.org), für functional programming.
+- [tibble](http://tibble.tidyverse.org), für tibbles, eine moderne reimplementierung von Dataframes.
+- [stringr](https://github.com/tidyverse/stringr), für Strings.
+- [fürcats](https://github.com/hadley/fürcats), für Factors.
+]
+
+.pull-right[
+<center>
+<img src="https://raw.githubusercontent.com/tidyverse/tidyverse/master/man/figures/logo.png" style="width: 40%" />
+]
+
+---
+# Tidyverse Eigenheiten
+
+.pull-left[
+### 1. Tibbles
+- `tibble` Paket
+- "rechteckige" Daten
+- Verhalten sich exakt wie Dataframes
+- ... aber:
+  - Typestable
+  - Besseres printing in der Konsole
+  - Default: base::head() wenn in der Konsole geprintet
+]
+
+.pull-right[
+```{r eval=FALSE}
+> iris[, 1:8]
+# A tibble: 150 x 5
+   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+          <dbl>       <dbl>        <dbl>       <dbl> <fct>  
+ 1          5.1         3.5          1.4         0.2 setosa 
+ 2          4.9         3            1.4         0.2 setosa 
+ 3          4.7         3.2          1.3         0.2 setosa 
+ 4          4.6         3.1          1.5         0.2 setosa 
+ 5          5           3.6          1.4         0.2 setosa 
+ 6          5.4         3.9          1.7         0.4 setosa 
+ 7          4.6         3.4          1.4         0.3 setosa 
+ 8          5           3.4          1.5         0.2 setosa 
+ 9          4.4         2.9          1.4         0.2 setosa 
+10          4.9         3.1          1.5         0.1 setosa 
+# … with 140 more rows
+```
+]
+
+---
+class: clear
+
+## Nested tibbles
+
+```{r}
+iris %>% nest(-Species)
+```
+
+---
+# Tidyverse Eigenheiten
+
+.pull-left[
+### 1. Pipes: `%>%` 
+- `magrittr` Paket
+- "rechteckige" Daten
+- Verhindert das verschachteln von Funktionen
+- Vermindert das Zwischenspeichern von Objekten
+- Plug & Play von zusätzlichen Schritten
+
+<br>
+- `x %>% f` ist äquivalent zu `f(x)`
+- `x %>% f(y)` ist äquivalent zu `f(x, y)`
+- `x %>% f %>% g %>% h` ist äquivalent zu `h(g(f(x)))`
+]
+
+.pull-right[
+Wir lesen Daten ein und haben einen ersten Blick:
+```{r eval=FALSE}
+the_data <-
+  read.csv('/path/to/data/file.csv') %>%
+  subset(variable_a > x) %>%
+  transform(variable_c = variable_a/variable_b) %>%
+  head(100)
+```
+
+... und stellen fest, dass einige NAs uns stören:
+```{r eval=FALSE}
+the_data <-
+  read.csv('/path/to/data/file.csv') %>%
+  subset(variable_a > x) %>%
+  filter(!is.na(c)) %>% 
+  transform(variable_c = variable_a/variable_b) %>%
+  head(100)
+```
+]
+
+---
+class: clear, center, middle 
+<img src="https://rviews.rstudio.com/post/2017-06-09-What-is-the-tidyverse_files/tidyverse2.png" style="width: 75%" />
+---
+# Daten importieren
+
+## `r font_col("readr", "#E69F00")`
+
+.pull-left[
+- Schneller
+- Erkennt Datentypen
+  - Konsistenteres deklarieren von Datentypen
+- Besseres Fehlerinterface
+- Importiert als tibble
+<br><br><br>
+- [vroom](https://github.com/r-lib/vroom): The fastest delimited reader for R, 952.97 MB/sec.
+
+| package    | version | time (sec) | speedup | throughput |
+| :--------- | ------: | ---------: | ------: | ---------: |
+| vroom      |   1.0.1 |       1.75 |   44.38 |  952.97 MB |
+| data.table |  1.12.2 |      14.79 |    5.25 |  112.68 MB |
+| readr      |   1.3.1 |      31.49 |    2.46 |   52.93 MB |
+| read.delim |   3.5.3 |      77.62 |    1.00 |   21.47 MB |
+]
+.pull-right[
+Funktion       | Importiert
+-------------- | --------------------------
+`read_csv()`   | Comma separated values
+`read_csv2()`  | Semi-colon separate values
+`read_delim()` | General delimited files
+`read_fwf()`   | Fixed width files
+`read_log()`   | Apache log files
+`read_table()` | Space separated files
+`read_tsv()`   | Tab delimited values
+]
+---
+class: clear
+
+```{r message=FALSE, warning=FALSE}
+mtcars <- read_csv("https://github.com/tidyverse/readr/raw/master/inst/extdata/mtcars.csv")
+
+mtcars
+```
+
+---
+# Daten exportieren
+
+.pull-left[
+Function            | Exportiert
+------------------- | ----------------------------------------
+`write_csv()`       | Comma separated values
+`write_excel_csv()` | CSV optimiert für Excel
+`write_delim()`     | General delimited files
+`write_file()`      | Ein einzelner string, written as is
+`write_lines()`     | Ein Vektor mit strings, one string per line
+`write_tsv()`       | Tab delimited values
+`write_rds()`       | .Rds Dateien
+`write_sas()`       | SAS .sas7bdat files
+`write_xpt()`       | SAS transport format, .xpt
+`write_sav()`       | SPSS .sav files
+`write_stata()`     | Stata .dta files
+]
+
+.pull-right[
+```{r eval = FALSE}
+write_csv(mtcars, path = "mtcars.csv")
+```
+]
+---
+class: clear, center, middle 
+<img src="https://rviews.rstudio.com/post/2017-06-09-What-is-the-tidyverse_files/tidyverse2.png" style="width: 75%" />
+---
+# Tidy(r): Daten "aufräumen"
+
+## 1. Was sind "tidy" Daten? 
+
+1. Jede Variable kommt in eine eigene Spalte
+2. Jede Beobachtung kommt in eine eigene Reihe
+3. Jeder Wert kommt in eigene Zelle
+<br><br>
+<center><img src="https://d33wubrfki0l68.cloudfront.net/6f1ddb544fc5c69a2478e444ab8112fb0eea23f8/91adc/images/tidy-1.png" style="width: 75%" /></center><br><br><br><br><br><br>
+
+.footnote[
+WICKHAM, Hadley . Tidy Data. Journal of Statistical Software, [S.l.], v. 59, Issue 10, p. 1 - 23, sep. 2014. ISSN 1548-7660. Available at: <https://www.jstatsoft.org/v059/i10>. Date accessed: 05 june 2019. doi:http://dx.doi.org/10.18637/jss.v059.i10.
+]
+
+---
+class:clear
+
+`spread(data, key, value)`
+> Long -> Wide. Schlüssel-Werte Paar wird über mehrere Spalten gespannt.
+> Wird genutzt wenn eine Spalte Beobachtungen von mehreren Variablen beinhaltet.
+
+`gather(data, key = "key", value = "value", ...)`
+
+> Wide -> Long. Nimmt mehrere Spalten und kollabiert diese in "key-value pairs".
+> Wird genutzt wenn man feststellt, dass Spaltennamen nicht Namen der Variablen sondern *Werte* der Variablen sind.
+
+<center><img src="https://raw.githubusercontent.com/gadenbuie/tidyexplain/master/images/tidyr-spread-gather.gif" style="width: 30%" /></center>
+
+---
+class: clear, center, middle 
+<img src="https://rviews.rstudio.com/post/2017-06-09-What-is-the-tidyverse_files/tidyverse2.png" style="width: 75%" />
+---
+# Daten transformieren (dplyr)
+
+## Die zentralen "Verben" von `dplyr`:
+
+### `select()`
+
+### `filter()`
+
+### `mutate()`
+
+### `arrange()`
+
+### `summarize()`
+
+### `group_by()`
+
+---
+class:clear
+
+## Die zentralen "Verben" von `dplyr`:
+
+### `r font_col("<code>select()</code>", "#E69F00")` = `r font_col("Spalten selektieren (Variablen)", "#56B4E9")`
+
+### `filter()`
+
+### `mutate()`
+
+### `arrange()`
+
+### `summarize()`
+
+### `group_by()`
+
+---
+# `select()`
+
+```{r, eval=FALSE}
+select(<DATEN>, <VARIABLEN>)
+```
+
+--
+
+```{r, eval=TRUE}
+select(iris, starts_with("Petal")) # ?select_helpers
+```
+
+---
+class:clear
+
+## Die zentralen "Verben" von `dplyr`:
+
+### `select()`
+
+### `r font_col("<code>filter()</code>", "#E69F00")` = `r font_col("Subset rows by value", "#56B4E9")`
+
+### `mutate()`
+
+### `arrange()`
+
+### `summarize()`
+
+### `group_by()`
+
+---
+# `filter()`
+
+```{r, eval=FALSE}
+filter(<DATEN>, <PRÄDIKATE>) 
+```
+
+* PRÄDIKATE: `TRUE/FALSE` Bedingungen <br><br><br>
+* Comparisons: `>`, `>=`, `<`, `<=`, `!=` (not equal), and `==` (equal). 
+* Operators: `&` is "and", `|` is "or", and `!` is "not"
+* `%in%`
+
+---
+class:clear
+
+```{r, eval=TRUE}
+filter(iris, Petal.Width > 0.5)
+```
+
+---
+class:clear
+
+## Die zentralen "Verben" von `dplyr`:
+
+### `select()`
+
+### `filter()`
+
+### `r font_col("<code>mutate()</code>", "#E69F00")` = `r font_col("Variable ändern oder hinzufügen", "#56B4E9")`
+
+### `arrange()`
+
+### `summarize()`
+
+### `group_by()`
+
+---
+# `mutate()`
+
+```{r, eval=FALSE}
+mutate(<DATEN>, <NAME> = <FUNKTION>)
+```
+
+-- 
+
+```{r, eval=FALSE}
+mutate(iris, sepal_combined = Sepal.Length + Sepal.Width)
+```
+
+---
+class:clear
+
+## Die zentralen "Verben" von `dplyr`:
+
+### `select()`
+
+### `filter()`
+
+### `mutate()`
+
+### `r font_col("<code>arrange()</code>", "#E69F00")` = `r font_col("Datensatz sortieren", "#56B4E9")`
+
+### `summarize()`
+
+### `group_by()`
+
+
+---
+# `arrange()`
+
+```{r, eval=FALSE}
+arrange(<DATEN>, <SORTIER VARIABLE>)
+```
+
+--
+.pull-left[
+
+```{r}
+arrange(iris[, 1:2], Sepal.Width)
+```
+
+]
+
+.pull-right[
+
+```{r}
+arrange(iris[, 1:2], desc(Sepal.Width))
+```
+
+]
+
+---
+class:clear
+
+## Die zentralen "Verben" von `dplyr`:
+
+### `select()`
+
+### `filter()`
+
+### `mutate()`
+
+### `arrange()`
+
+### `r font_col("<code>summarize()</code>", "#E69F00")` = `r font_col("Daten zusammenfassen", "#56B4E9")`
+
+### `r font_col("<code>group_by()</code>", "#E69F00")` = `r font_col("Daten gruppieren", "#56B4E9")`
+
+---
+# `summarize()`
+
+```{r, eval=FALSE}
+summarize(<DATEN>, <NAME> = <FUNKTION>)
+group_by(<DATEN>, <VARIABLE>)
+```
+
+--
+
+```{r, eval=FALSE}
+iris %>%
+  group_by(Species) %>%
+  summarise(mean = mean(Sepal.Width), n = n())
+```
+
+---
+# Scoped `dplyr` Verben
+
+Jedes Verb, welchen Variablen verändert, kommt in dplyr in drei zusätzlichen
+Formen mit den Suffixen `_if`, `_at` und `_all`. Diese drei Varianten erlauben:
+
+* `_if` erlaubt das Auswählen von Variablen basierend auf Prädikaten
+* `_at` erlaubt das Auswählen von Variablen basierend auf Position oder der gleichen Syntax wie `dplyr::select`
+* `_all` erlaubt das Auswählen von allen Variablen
+
+---
+class: clear, center, middle 
+<img src="https://rviews.rstudio.com/post/2017-06-09-What-is-the-tidyverse_files/tidyverse2.png" style="width: 75%" />
+---
+background-image: url(http://hexb.in/hexagons/ggplot2.png)
+background-position: 90% 10%
+# Daten visualisieren
+
+## ggplot2: Layered Grammar of Graphics
+
+---
+background-image: url(https://rpkgs.datanovia.com/ggpubr/tools/README-ggpubr-box-plot-dot-plots-strip-charts-3.png)
+background-position: center
+background-size: contain
+
+# Publikations Qualität & mehr
+
+
+---
+background-image: url(http://bit.ly/2KSGZLu)
+background-position: center
+background-size: contain
+
+# Publikations Qualität & mehr
+
+
+---
+background-image: url(http://spatial.ly/wp-content/uploads/2014/12/info_cap_osm.jpg)
+background-position: center
+background-size: contain
+
+# Publikations Qualität & mehr
+
+---
+background-image: url(https://github.com/nldoc/nlrx_playground/raw/master/fire.gif)
+background-position: center
+background-size: contain
+
+# Publikations Qualität & mehr
+
+---
+class: clear
+```{r}
+ggplot()
+```
+
+---
+class: clear
+```{r}
+ggplot(mtcars, aes(x = mpg, y = hp))
+```
+
+---
+class: clear
+```{r}
+ggplot(mtcars, aes(x = mpg, y = hp)) +
+  geom_point()
+```
+
+
+---
+class: clear
+# `ggplot()`
+#### `ggplot(data = <DATA>, mapping = aes(<MAPPINGS>)) + `
+####  &nbsp;&nbsp; `<GEOM_FUNCTION>()`
+
+--
+
+## Layers hinzufügen mit `r font_col("<code>+</code>", "#E69F00")`
+
+--
+
+## `+` an das `r font_col("Ende", "#E69F00")` einer Zeile
+
+--
+
+## *map* aesthetics mit `r font_col("<code>aes()</code>", "#E69F00")`
+
+---
+background-image: url(https://i2.wp.com/www.dartistics.com/images/ggplot2_geoms.png)
+background-position: center
+background-size: contain
+# Geom 
+
+---
+class: clear
+
+```{r}
+ggplot(data = iris, 
+       mapping = aes(x = Sepal.Width, y = Petal.Width, color=Species)) +
+  geom_point()
+```
+
+---
+class: clear
+
+```{r}
+ggplot(data = iris, 
+       mapping = aes(x = Sepal.Width, y = Petal.Width, color=Species)) +
+  geom_line()
+```
+
+---
+class: clear
+
+```{r}
+ggplot(data = iris, 
+       mapping = aes(Species)) +
+  geom_bar()
+```
+---
+class: clear
+
+```{r}
+ggplot(data = iris, 
+       mapping = aes(Sepal.Length, Species)) +
+  geom_hex(bins = 10)
+```
+---
+# Aesthetic Mapping
+
+In ggplot bedeutet aesthetic “etwas das man sehen kann”. Beispiele:
+
+* position 
+* color
+* fill
+* shape
+* linetype
+* size
+
+Jedes `geom` nimmt dabei nur einen Bruchteil aller aesthetics, `aes` ist die aesthetic Funktion.
+
+---
+class: clear
+
+```{r}
+ggplot(data = iris, 
+       mapping = aes(x = Sepal.Width, y = Petal.Width, color = Species)) +
+  geom_point()
+```
+---
+class: clear
+
+```{r warning=FALSE}
+ggplot(data = iris, 
+       mapping = aes(x = Sepal.Width, y = Petal.Width, size = Species)) +
+  geom_point()
+```
+---
+class: clear
+
+```{r warning=FALSE}
+ggplot(data = iris, 
+       mapping = aes(x = Sepal.Width, y = Petal.Width, alpha = Species)) +
+  geom_point()
+```
+---
+class: clear
+
+```{r warning=FALSE}
+ggplot(data = iris, 
+       mapping = aes(x = Sepal.Width, y = Petal.Width, shape = Species)) +
+  geom_point()
+```
+
+---
+class: clear
+
+```{r warning=FALSE}
+ggplot(data = iris, 
+       mapping = aes(x = Sepal.Width, y = Petal.Width, 
+                     color = Species, size = Species)) +
+  geom_point()
+```
+
+---
+# Facets
+
+```{r warning=FALSE}
+ggplot(data = iris, 
+       mapping = aes(x = Sepal.Width, y = Petal.Width, 
+                     color = Species, color = Species)) +
+  geom_point() +
+  facet_wrap(. ~ Species)
+```
+---
+# Themes
+```{r warning=FALSE}
+ggplot(data = iris, 
+       mapping = aes(x = Sepal.Width, y = Petal.Width, 
+                     color = Species, color = Species)) +
+  geom_point() +
+  facet_wrap(. ~ Species) + 
+  theme_grey(base_size = 15)
+```
+---
+# Ein vollständigeres Beispiel
+
+```{r warning=FALSE}
+ggplot(data = iris, mapping = aes(x = Sepal.Width, y = Petal.Width)) +
+  geom_point(color = "grey20", fill = "grey65", shape=21) +
+  facet_wrap(. ~ Species) + 
+  geom_smooth(method = lm, color = "black") +
+  theme_minimal(base_size = 15) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Sepal Width (g)", y = "Petal Width (g)")
+```
+
+---
+class: clear, center, middle 
+<img src="https://rviews.rstudio.com/post/2017-06-09-What-is-the-tidyverse_files/tidyverse2.png" style="width: 75%" />
+---
+background-image: url(https://raw.githubusercontent.com/tidymodels/tidymodels/master/tidymodels_hex.png)
+background-position: 90% 10%
+background-size: 20%
+# Models
+
+* 80% eurer Zeit wird in den vorangegangenen Schritten stecken, 20% in dem Modellieren
+
+--
+
+<br><br><br>
+
+* *RStudio* hat auch hierfür ein Metapaket: **tidymodels** 
+* Lädt Pakete die Bezug haben zur Modellierung und Analyse
+* Gleiche Philosophie wie das **tidyverse**
+
+---
+# tidymodels
+
+
+- [broom](https://broom.tidyverse.org/), fässt Modeloutput in tibbles zusammen.
+- [dplyr](http://dplyr.tidyverse.org), für Datenmanipulation.
+- [ggplot2](https://ggplot2.tidyverse.org/), für Datenvisualisation.
+- [infer](http://infer.tidyverse.org), aussagekräftige statistische Formulierungen.
+- [purrr](http://purrr.tidyverse.org), für functional programming.
+- [rsample](https://github.com/tidymodels/rsample), für Resampling Techniken.
+- [yardstick](https://github.com/tidymodels/rsampleyardstick), für das Evaluieren von Model Performance.
+
+---
+background-image: url(https://raw.githubusercontent.com/tidymodels/broom/master/man/figures/logo.png)
+background-position: 90% 10%
+background-size: 10%
+# broom
+
+- `tidy()`: Ersetzt `summary(model)`, fasst alle Modelkomponenten in einem tibble zusammen
+- `glance()`: Fasst Model hoch aggregiert zusammen
+- `augment()`: Fügt Modeloutput (z.B. Predictions) dem Datensatz hinzu
+
+---
+class:clear
+```{r}
+library(broom)
+
+fit <- lm(Sepal.Width ~ Petal.Length + Petal.Width, iris)
+summary(fit)
+```
+
+---
+class:clear
+```{r}
+library(broom)
+
+fit <- lm(Sepal.Width ~ Petal.Length + Petal.Width, iris)
+tidy(fit)
+```
+
+---
+class:clear
+```{r}
+glance(fit)
+```
+
+---
+class:clear
+```{r}
+augment(fit, data = iris)
+```
+
+---
+background-image: url(https://ismayc.github.io/talks/ness-infer/img/infer_ht.jpg)
+background-position: center
+background-size: contain
+# infer
+
+---
+class: clear
+
+- `r font_col("<code>specify</code>", "#E69F00")` die response and explanatory Variablen (y ~ x)
+
+--
+
+- `r font_col("<code>hypothesize</code>", "#E69F00")` was die Nullhypothese ist
+
+--
+
+- `r font_col("<code>generate</code>", "#E69F00")` neue Samples von dem Datensatz
+
+--
+
+- `r font_col("<code>calculate</code>", "#E69F00")` die Statistik für alle Samples
+
+--
+
+- `r font_col("<code>visualize</code>", "#E69F00")` die Verteilung des Tests
+
+---
+class: clear
+
+```{r}
+library(infer)
+mtcars %>%
+  dplyr::mutate(am = factor(am), vs = factor(vs)) %>%
+  specify(am ~ vs, success = "1") %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 100, type = "permute") %>%
+  calculate(stat = "diff in props", order = c("1", "0"))  %>%
+  visualize()
+```
+
+
+---
+background-image: url(https://raw.githubusercontent.com/tidymodels/rsample/master/rsample_hex_thumb.png)
+background-position: 90% 10%
+background-size: 15%
+# rsample
+* Sehr einfaches Interface um Daten zu Resamplen
+<br><br><br><br><br><br><br>
+```{r eval=FALSE}
+# binärer Split der Daten
+initial_split(data, prop = 3/4, strata = NULL, ...) 
+
+# binärer Split der Daten
+bootstraps(data, times = 25, strata = NULL, apparent = FALSE, ...)
+
+# binärer Split der Daten
+mc_cv(data, prop = 3/4, times = 25, strata = NULL, ...)
+```
+
+---
+background-image: url(https://raw.githubusercontent.com/tidymodels/rsample/master/rsample_hex_thumb.png)
+background-position: 90% 10%
+background-size: 15%
+# yardstick
+
+```{r}
+library(yardstick)
+augment(fit, data = iris) %>% 
+  rmse(Petal.Width, .fitted)
+```
+
+---
+class: clear
+
+.pull-left[
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+library(kableExtra)
+library(knitr)
+library(dplyr)
+
+yardns <- asNamespace("yardstick")
+fns <- lapply(names(yardns), get, envir = yardns)
+names(fns) <- names(yardns)
+
+get_metrics <- function(fns, type) {
+  where <- vapply(fns, inherits, what = type, FUN.VALUE = logical(1))
+  paste0("`", sort(names(fns[where])), "()`")
+}
+
+all_metrics <- bind_rows(
+  tibble(type = "class", metric = get_metrics(fns, "class_metric")),
+  # tibble(type = "class prob", metric = get_metrics(fns, "prob_metric")),
+  # tibble(type = "numeric", metric = get_metrics(fns, "numeric_metric"))
+)
+
+all_metrics %>%
+  knitr::kable(format = "html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = TRUE) %>%
+  collapse_rows(columns = 1)
+```
+
+]
+
+.pull-right[
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+library(kableExtra)
+library(knitr)
+library(dplyr)
+
+yardns <- asNamespace("yardstick")
+fns <- lapply(names(yardns), get, envir = yardns)
+names(fns) <- names(yardns)
+
+get_metrics <- function(fns, type) {
+  where <- vapply(fns, inherits, what = type, FUN.VALUE = logical(1))
+  paste0("`", sort(names(fns[where])), "()`")
+}
+
+all_metrics <- bind_rows(
+  # tibble(type = "class", metric = get_metrics(fns, "class_metric")),
+  tibble(type = "class prob", metric = get_metrics(fns, "prob_metric")),
+  tibble(type = "numeric", metric = get_metrics(fns, "numeric_metric"))
+)
+
+all_metrics %>%
+  knitr::kable(format = "html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = TRUE) %>%
+  collapse_rows(columns = 1)
+```
+
+]
+
+
+---
+background-image: url(https://raw.githubusercontent.com/tidyverse/purrr/master/man/figures/logo.png)
+background-position: 90% 10%
+background-size: 15%
+# purrr
+
+- R performt am besten mit vektorisierten Funktionen
+    - Schleifen sind in der **Tendenz** langsamer
+
+--
+
+- ... aber: `apply` ist grauenhaft.
+
+--
+
+* `purrr` macht `apply` zugänglicher!
+* `apply` wird zu `map`
+
+--
+
+* Alles in R ist eine Liste, mit purrr lernt man den Umgang mit Listen sehr effektiv
+
+```{r eval=FALSE}
+map(.x, .f)
+
+# für jedes .x
+# führe .f aus
+```
+
+---
+# map
+
+.pull-left[
+```{r}
+iris <- iris[, 1:4]
+output <- vector("double", ncol(iris))  # 1. output
+for (i in seq_along(iris)) {            # 2. sequence
+  output[[i]] <- median(iris[[i]])      # 3. body
+}
+output
+```
+
+]
+
+
+.pull-left[
+```{r}
+map_dbl(iris, median)
+```
+
+]
+---
+# Resourcen
+## [R for Data Science](http://r4ds.had.co.nz/): Einführung in das tidyverse mit Fokos auf Data science. Frei zugänglich.
+## [10 dplyr tips](https://twitter.com/i/moments/1044926554239881217): Twitter Account mit tidyverse Tips
+
+---
+class: center, middle
+
+# Thanks!
+
+Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).
+
+The chakra comes from [remark.js](https://remarkjs.com), [**knitr**](http://yihui.name/knitr), and [R Markdown](https://rmarkdown.rstudio.com).
