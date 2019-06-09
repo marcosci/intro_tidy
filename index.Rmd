@@ -941,12 +941,16 @@ map(.x, .f)
 
 .pull-left[
 ```{r}
+# for loop
 iris <- iris[, 1:4]
 output <- vector("double", ncol(iris))  # 1. output
 for (i in seq_along(iris)) {            # 2. sequence
   output[[i]] <- median(iris[[i]])      # 3. body
 }
 output
+
+# apply
+apply(iris, 2, median)
 ```
 
 ]
