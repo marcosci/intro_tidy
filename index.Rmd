@@ -1,6 +1,6 @@
 ---
 title: "Einführung in das *tidyverse*: "
-subtitle: "... <html><div style='float:left'></div><hr color='#EB811B' size=1px width=1096px></html>"
+subtitle: "Datenanalyse aus der Anwenderperspektive <html><div style='float:left'></div><hr color='#EB811B' size=1px width=1096px></html>"
 author: "Marco Sciaini <br>https://marcosci.github.io"
 date: "Computergestützte Datenanalyse, 11.06.2019"
 output:
@@ -24,6 +24,16 @@ library(tidyverse)
 class: clear, center
 
 background-image: url(tidyhex.png)
+---
+# Ich
+
+- Doktorand in Katrins Arbeitsgruppe
+- Momentan 4 R Pakete auf CRAN, alle peer-reviewed
+
+<br><br><br><br>
+
+<p><center><a href="https://travis-ci.org/r-spatialecology/landscapemetrics" rel="nofollow"><img src="https://raw.githubusercontent.com/ropensci/NLMR/master/man/figures/logo.png" alt="Build Status" data-canonical-src="https://raw.githubusercontent.com/ropensci/NLMR/master/man/figures/logo.png" style="float: left;  margin-bottom: 0.5em; width: 20%;"></a><a href="https://travis-ci.org/r-spatialecology/landscapemetrics" rel="nofollow"><img src="https://raw.githubusercontent.com/r-spatialecology/landscapemetrics/master/man/figures/logo.png" alt="Build Status" data-canonical-src="https://raw.githubusercontent.com/r-spatialecology/landscapemetrics/master/man/figures/logo.png" style="float: left;  margin-bottom: 0.5em; width: 20%;"></a><a href="https://travis-ci.org/r-spatialecology/landscapemetrics" rel="nofollow"><img src="https://raw.githubusercontent.com/ropensci/nlrx/master/man/figures/logo.png" alt="Build Status" data-canonical-src="https://raw.githubusercontent.com/ropensci/nlrx/master/man/figures/logo.png" style="float: left;  margin-bottom: 0.5em; width: 20%;"></a></center></p>
+
 ---
 # Sneak Peak #1
   
@@ -95,7 +105,8 @@ iris %>%
 ---
 # Tidyverse
 
-### Metapaket, welches mit `library(tidyverse)`: 
+### Metapaket, welches mit `library(tidyverse)` folgende Pakete lädt:
+
 .pull-left[
 - [ggplot2](http://ggplot2.tidyverse.org), für Datenvisualisation.
 - [dplyr](http://dplyr.tidyverse.org), für Datenmanipulation.
@@ -108,6 +119,7 @@ iris %>%
 ]
 
 .pull-right[
+<br><br><br>
 <center>
 <img src="https://raw.githubusercontent.com/tidyverse/tidyverse/master/man/figures/logo.png" style="width: 40%" />
 ]
@@ -487,7 +499,7 @@ iris %>%
 ---
 # Scoped `dplyr` Verben
 
-Jedes Verb, welchen Variablen verändert, kommt in dplyr in drei zusätzlichen
+Jedes Verb, welches Variablen verändert, kommt in dplyr in drei zusätzlichen
 Formen mit den Suffixen `_if`, `_at` und `_all`. Diese drei Varianten erlauben:
 
 * `_if` erlaubt das Auswählen von Variablen basierend auf Prädikaten
@@ -509,7 +521,7 @@ background-image: url(https://rpkgs.datanovia.com/ggpubr/tools/README-ggpubr-box
 background-position: center
 background-size: contain
 
-# Publikations Qualität & mehr
+# Publikationsqualität & mehr
 
 
 ---
@@ -517,7 +529,7 @@ background-image: url(http://bit.ly/2KSGZLu)
 background-position: center
 background-size: contain
 
-# Publikations Qualität & mehr
+# Publikationsqualität & mehr
 
 
 ---
@@ -525,14 +537,14 @@ background-image: url(http://spatial.ly/wp-content/uploads/2014/12/info_cap_osm.
 background-position: center
 background-size: contain
 
-# Publikations Qualität & mehr
+# Publikationsqualität & mehr
 
 ---
 background-image: url(https://github.com/nldoc/nlrx_playground/raw/master/fire.gif)
 background-position: center
 background-size: contain
 
-# Publikations Qualität & mehr
+# Publikationsqualität & mehr
 
 ---
 class: clear
@@ -672,16 +684,17 @@ ggplot(data = iris,
 ---
 # Facets
 
-```{r warning=FALSE}
+```{r warning=FALSE, fig.height= 5}
 ggplot(data = iris, 
        mapping = aes(x = Sepal.Width, y = Petal.Width, 
                      color = Species, color = Species)) +
   geom_point() +
   facet_wrap(. ~ Species)
 ```
+
 ---
 # Themes
-```{r warning=FALSE}
+```{r warning=FALSE, fig.height= 5}
 ggplot(data = iris, 
        mapping = aes(x = Sepal.Width, y = Petal.Width, 
                      color = Species, color = Species)) +
@@ -692,7 +705,7 @@ ggplot(data = iris,
 ---
 # Ein vollständigeres Beispiel
 
-```{r warning=FALSE}
+```{r warning=FALSE, fig.height= 5}
 ggplot(data = iris, mapping = aes(x = Sepal.Width, y = Petal.Width)) +
   geom_point(color = "grey20", fill = "grey65", shape=21) +
   facet_wrap(. ~ Species) + 
@@ -834,7 +847,7 @@ mc_cv(data, prop = 3/4, times = 25, strata = NULL, ...)
 ```
 
 ---
-background-image: url(https://raw.githubusercontent.com/tidymodels/rsample/master/rsample_hex_thumb.png)
+background-image: url(https://raw.githubusercontent.com/tidymodels/yardstick/master/man/figures/logo.png)
 background-position: 90% 10%
 background-size: 15%
 # yardstick
