@@ -982,12 +982,11 @@ map_dbl(iris, median)
 ## [10 dplyr tips](https://twitter.com/i/moments/1044926554239881217): Twitter Account mit tidyverse Tips
 ## [Practical ggplot2](https://github.com/clauswilke/practical_ggplot2): Step-by-step Beispeile um publikationsgerechte Plots mit ggplot zu erzeugen
 ## [Geocomputation with R](https://geocompr.github.io/): Moderne Einführung in räumliche Auswertungen mit R
+## [Benchmarking of common data-science tasks](https://h2oai.github.io/db-benchmark/): Benchmark verschiedener Sprachen gegeneinander (Gegenargument zu R ist langsam)
 
 ---
-class: center, middle
-
 # Danke!
 
 ## Hands-on / Praktische Übung:
 
-[]()
+[https://github.com/marcosci/intro_tidy/blob/master/hands_on_tidyverse.R](https://github.com/marcosci/intro_tidy/blob/master/hands_on_tidyverse.R)
