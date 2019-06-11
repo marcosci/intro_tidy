@@ -30,6 +30,7 @@ background-image: url(tidyhex.png)
 - Doktorand in Katrins Arbeitsgruppe
 - Momentan 4 R Pakete auf CRAN, alle peer-reviewed
 
+- Bevor wir loslegen: `install.packages("tidyverse")`
 <br><br><br><br>
 
 <p><center><a href="https://travis-ci.org/r-spatialecology/landscapemetrics" rel="nofollow"><img src="https://raw.githubusercontent.com/ropensci/NLMR/master/man/figures/logo.png" alt="Build Status" data-canonical-src="https://raw.githubusercontent.com/ropensci/NLMR/master/man/figures/logo.png" style="float: left;  margin-bottom: 0.5em; width: 20%;"></a><a href="https://travis-ci.org/r-spatialecology/landscapemetrics" rel="nofollow"><img src="https://raw.githubusercontent.com/r-spatialecology/landscapemetrics/master/man/figures/logo.png" alt="Build Status" data-canonical-src="https://raw.githubusercontent.com/r-spatialecology/landscapemetrics/master/man/figures/logo.png" style="float: left;  margin-bottom: 0.5em; width: 20%;"></a><a href="https://travis-ci.org/r-spatialecology/landscapemetrics" rel="nofollow"><img src="https://raw.githubusercontent.com/ropensci/nlrx/master/man/figures/logo.png" alt="Build Status" data-canonical-src="https://raw.githubusercontent.com/ropensci/nlrx/master/man/figures/logo.png" style="float: left;  margin-bottom: 0.5em; width: 20%;"></a></center></p>
@@ -979,12 +980,14 @@ map_dbl(iris, median)
 # Resourcen
 ## [R for Data Science](http://r4ds.had.co.nz/): Einführung in das tidyverse mit Fokos auf Data science. Frei zugänglich.
 ## [10 dplyr tips](https://twitter.com/i/moments/1044926554239881217): Twitter Account mit tidyverse Tips
+## [Practical ggplot2](https://github.com/clauswilke/practical_ggplot2): Step-by-step Beispeile um publikationsgerechte Plots mit ggplot zu erzeugen
+## [Geocomputation with R](https://geocompr.github.io/): Moderne Einführung in räumliche Auswertungen mit R
 
 ---
 class: center, middle
 
-# Thanks!
+# Danke!
 
-Slides created via the R package [**xaringan**](https://github.com/yihui/xaringan).
+## Hands-on / Praktische Übung:
 
-The chakra comes from [remark.js](https://remarkjs.com), [**knitr**](http://yihui.name/knitr), and [R Markdown](https://rmarkdown.rstudio.com).
+[]()
