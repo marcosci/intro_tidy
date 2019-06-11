@@ -824,8 +824,7 @@ mtcars %>%
   specify(am ~ vs, success = "1") %>%
   hypothesize(null = "independence") %>%
   generate(reps = 100, type = "permute") %>%
-  calculate(stat = "diff in props", order = c("1", "0"))  %>%
-  visualize()
+  calculate(stat = "diff in props", order = c("1", "0"))
 ```
 
 
